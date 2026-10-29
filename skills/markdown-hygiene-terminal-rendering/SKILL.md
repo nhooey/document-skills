@@ -2,15 +2,16 @@
 name: markdown-hygiene-terminal-rendering
 description: |
   Write Markdown that reads correctly in a terminal, where it is shown raw
-  or only partly rendered on a grid of fixed-width columns. Draw tables
-  with box-drawing lines in a `text` block, each column padded to its
-  widest cell with an emoji counted as 2 columns (`scripts/box_table.py`
-  does it). Check a new glyph's rendered width before putting it in a
-  table. Part multi-line list items with a separator line holding the
-  list's indent and U+2800, because blank and whitespace lines collapse.
+  or only partly rendered on a grid of fixed-width columns. Write tables
+  as plain Markdown tables with padded source columns, never in a code
+  block, and let the terminal renderer draw them. Check a new glyph's
+  rendered width before putting it in an underline or a table
+  (`scripts/box_table.py --probe`). Part multi-line list items with a
+  separator line holding the list's indent and U+2800, because blank and
+  whitespace lines collapse.
   End a header line with a hard line break (2 trailing spaces) before an
   underline. Write every URL as a Markdown link, never bare, and never
-  inside a code block or a box table. Use whenever writing Markdown that a
+  inside a code block. Use whenever writing Markdown that a
   person will read in a terminal: a coding agent's replies, CLI output,
   commit and tag messages read with `git log`, READMEs read with `cat` or
   `less`, and notes in a terminal pager.
@@ -21,9 +22,10 @@ tags: [markdown, terminal, writing]
 
 A terminal draws text on a grid of fixed-width columns. Markdown sent to it
 is either printed raw or passed through a renderer that handles some syntax
-(emphasis, links, lists) and not the rest. Either way, what a browser would
-lay out for you is now your job: column alignment, the gaps between items,
-where a line breaks, and which text can be clicked. The rules below make
+(emphasis, links, lists, tables) and not the rest. Either way, some of what
+a browser would lay out for you is now your job: the gaps between items,
+where a line breaks, the width of each glyph, and which text can be
+clicked. The rules below make
 the source read well raw and render well in the terminal renderers in
 common use.
 
@@ -34,53 +36,46 @@ terminal; it applies on top of ordinary Markdown syntax, so load
 `markdown-hygiene-lists-headings-tables` and
 `markdown-hygiene-escape-reserved-characters` beside it.
 
-## Tables: box-drawing lines in a `text` block
+## Tables: plain Markdown tables
 
-A Markdown table shows in a terminal as rows of `|` and loose `---`, with
-gaps where the dashes don't join and columns that drift wherever a cell
-holds an emoji. Draw it instead with box-drawing lines inside a fenced
-`text` block, where nothing is reformatted and the lines join with no gaps:
+A terminal renderer that handles GitHub-flavored Markdown tables, as a
+coding agent's terminal interface does, draws the borders, makes the
+header row bold and wraps long cells to the window. Write a plain Markdown
+table and let it:
 
-```text
-┌──────┬───────┬───────┐
-│ Step │ State │ Count │
-├──────┼───────┼───────┤
-│ 1    │ ✅    │    12 │
-│ 2    │ 🏃    │     3 │
-└──────┴───────┴───────┘
+```markdown
+| Step | State | Count |
+| ---- | ----- | ----: |
+| 1    | ✅    |    12 |
+| 2    | 🏃    |     3 |
 ```
 
-- **The characters:** `─ │ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘`, one space of padding inside
-  each border.
-- **Pad each column to its widest cell**, counted in terminal columns, not
-  characters: an emoji or a CJK character is 2 columns, a combining mark or
-  zero-width joiner 0, and a character followed by U+FE0F (the emoji
-  presentation selector, as in `⚠️`) 2. One miscounted cell shifts that
-  row's right-hand border and every border after it.
-- **Right-align numbers**, so their digits line up.
-- **Let the script do it.** `scripts/box_table.py` reads tab-separated rows
-  on stdin, the first row the header, and prints the table; it counts
-  widths as above and exits 1 naming any row whose cell count differs from
-  the header's. Standard library only:
-
-  ```bash
-  printf 'Step\tState\tCount\n1\t✅\t12\n2\t🏃\t3\n' |
-    python3 -I scripts/box_table.py --right 2
-  ```
-
-- **No links in a box table.** A cell holds the label; the links follow the
-  table as a list (see Links below).
-- **Short cells.** A terminal wraps a line wider than the window and the
-  table falls apart, so keep the whole table narrower than about 100
-  columns, and move long text to a note under the table.
+- **The syntax:** a header row, a delimiter row and the body rows, as
+  `markdown-hygiene-lists-headings-tables` says.
+- **Right-align numbers** with `---:` in the delimiter row, so their digits
+  line up.
+- **Pad the source columns** to their widest cell, so the table also reads
+  where it is shown raw.
+- **Links in a cell** are fine: the renderer makes them clickable there as
+  anywhere else. Keep the label short, since a label that wraps across
+  lines of a cell can stop being clickable.
+- **Short cells.** A cell of a few words keeps each row on a line or two;
+  move longer text to a note under the table.
+- **Not inside a code block.** A table in a fenced block is printed as
+  raw `|` and `---`.
 
 ## Glyph widths: check before you use one
 
 A terminal decides each glyph's width itself, and terminals disagree,
 especially about emoji, symbols with an "ambiguous" East Asian width, and
-emoji sequences. A glyph drawn at a width other than the one you padded for
-breaks every table and underline it sits in.
+emoji sequences. A glyph drawn at a width other than the one counted for it
+pushes an underline past its header, shifts a padded source column, and can
+put a rendered table's borders out of line, since the renderer counts
+widths its own way.
 
+- **Count terminal columns, not characters:** an emoji or a CJK character
+  is 2 columns, a combining mark or zero-width joiner 0, and a character
+  followed by U+FE0F (the emoji presentation selector, as in `⚠️`) 2.
 - **Check each new glyph** in the terminals your readers use before putting
   it in a table or an underline. `scripts/box_table.py --probe GLYPH` draws
   a small table with the glyph in one row and ASCII in the others, and
@@ -175,15 +170,8 @@ spaces in the files where you rely on them.
   label. A local served page needs this as much as a web page.
 - **Never a bare URL.** A long one wraps across lines and stops being
   clickable, and the reader can't tell what it opens until they open it.
-- **Never inside a code block or a box table**, where it is printed as text
-  and can't be clicked. The table's cell holds the label, and the link
-  follows the table, one per line or as a list:
-
-  ```markdown
-  (box table in a text block, with a "Report" column holding "trial projection")
-
-  - [trial projection](http://127.0.0.1:8765/projection)
-  ```
+- **Never inside a code block**, where it is printed as text and can't be
+  clicked. A Markdown table's cell can hold a link (see Tables above).
 
 - **Text the reader copies** (a command, a prompt, a config snippet) stays
   in its code block, URL included: there the point is copying the exact
