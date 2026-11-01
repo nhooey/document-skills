@@ -4,7 +4,9 @@ description: |
   Write Markdown that reads correctly in a terminal, where it is shown raw
   or only partly rendered on a grid of fixed-width columns. Write tables
   as plain Markdown tables with padded source columns, never in a code
-  block, and let the terminal renderer draw them. Check a new glyph's
+  block, and let the terminal renderer draw them, but keep them within the
+  terminal's width with balanced columns, shortening the widest cells
+  first. Check a new glyph's
   rendered width before putting it in an underline or a table
   (`scripts/box_table.py --probe`). Part multi-line list items with a
   separator line holding the list's indent and U+2800, because blank and
@@ -63,6 +65,31 @@ table and let it:
   move longer text to a note under the table.
 - **Not inside a code block.** A table in a fenced block is printed as
   raw `|` and `---`.
+
+### Fit the terminal's width, with balanced columns
+
+A renderer that wraps cells to the window chooses for itself how to share
+the width out. It often leaves the column with the longest cell wide and
+squeezes the others until they hold a word per line, or breaks words in
+half. Choose the shape yourself, before the renderer has to:
+
+- **Fit the width.** A rendered table is as wide as its columns'
+  widest cells, plus 3 columns per column for the borders and padding,
+  plus 1. Keep that within the reader's terminal width.
+- **Know the width.** In the reader's own shell, it is `$COLUMNS` or
+  `tput cols`. An agent's shell usually has no terminal, so `$COLUMNS` is
+  empty or 0 there and `tput cols` says 80 whatever the window is.
+  Take the width from your preferences (below), or else assume 100.
+- **Balance the columns.** When the table is too wide, shorten the
+  widest cells first, so the columns come out of similar width and none
+  is left with a single word per line: a phrase in place of a sentence, a
+  name in place of a description, the detail moved to a note under the
+  table.
+- **Never narrower than a word.** Leave each column at least as wide as
+  its longest word, link label or code span, since a renderer that must
+  go narrower breaks it in half.
+- **Too many columns:** when shortening isn't enough, split the table in
+  two, or swap its rows and columns, or turn it into a list.
 
 ## Glyph widths: check before you use one
 
@@ -186,6 +213,20 @@ spaces in the files where you rely on them.
   text.
 - A list's items run together, a table's borders don't line up, or a link
   can't be clicked in the terminal.
+- A table is wider than the terminal, or one of its columns wraps to a
+  word per line.
+
+## Your preferences
+
+!`cat "${CLAUDE_SKILL_DIR}/../markdown-hygiene-terminal-rendering.preferences.md" "${CLAUDE_PROJECT_DIR}/.agents/skills/markdown-hygiene-terminal-rendering.preferences.md" 2>/dev/null || true`
+
+If your agent doesn't run the line above, read these files yourself if they
+exist: `markdown-hygiene-terminal-rendering.preferences.md` next to this skill's folder, then
+`.agents/skills/markdown-hygiene-terminal-rendering.preferences.md` in the project. A project's
+file overrides the user's, and the user's overrides this skill's defaults.
+
+A preferences file can set the terminal width tables must fit, as
+`- Table width: 120`.
 
 ## Related skills
 
@@ -197,3 +238,4 @@ came from; don't apply it from memory.
 - `markdown-hygiene-lists-headings-tables`: the Markdown syntax for lists, headings and tables these rules build on.
 - `markdown-hygiene-escape-reserved-characters`: escaping characters that Markdown would read as formatting.
 - `coding-agent-kanban-turn-responses`: an agent's turn responses, which apply these rules to their lists, tables and links.
+- `coding-agent-skill-references`: where this skill's preferences files live and who writes them.
