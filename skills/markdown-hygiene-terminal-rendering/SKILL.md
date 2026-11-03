@@ -68,6 +68,12 @@ table and let it:
   move longer text to a note under the table.
 - **Not inside a code block.** A table in a fenced block is printed as
   raw `|` and `---`.
+- **Not inside a list item.** A table indented under a list item is
+  printed as raw pipe rows that run into the item's text, and a line
+  straight after it can be read as one more row. When an item needs a
+  table, end the list, put the table in its own block with a blank line
+  before and after it, and name the item it belongs to in the line above
+  it.
 
 ### Box-drawn tables
 
