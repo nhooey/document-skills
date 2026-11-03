@@ -6,7 +6,10 @@ description: |
   as plain Markdown tables with padded source columns, never in a code
   block, and let the terminal renderer draw them, but keep them within the
   terminal's width with balanced columns, shortening the widest cells
-  first. Check a new glyph's
+  first and writing each cell to wrap between words. Take the width from
+  a terminal-width mod's system-prompt line, else the preferences, else
+  100. Draw a box table with `scripts/box_table.py` only where nothing
+  renders the Markdown. Check a new glyph's
   rendered width before putting it in an underline or a table
   (`scripts/box_table.py --probe`). Part multi-line list items with a
   separator line holding the list's indent and U+2800, because blank and
@@ -66,6 +69,34 @@ table and let it:
 - **Not inside a code block.** A table in a fenced block is printed as
   raw `|` and `---`.
 
+### Box-drawn tables
+
+A renderer that handles Markdown tables already draws them with
+box-drawing lines (`┌───┬───┐`), so in a coding agent's replies a plain
+Markdown table is how to get a box-drawn one. Draw the box yourself only
+where nothing renders the Markdown: CLI output, a commit or tag message,
+a README read with `cat` or `less`. There, `scripts/box_table.py` draws
+tab-separated rows on stdin as a box table, with `--right N,M` to
+right-align columns:
+
+```bash
+printf 'Step\tState\tCount\n1\t✅\t12\n2\t🏃\t3\n' | python3 -I scripts/box_table.py --right 2
+```
+
+Where the text is Markdown that may or may not be rendered, put the
+drawn table in a fenced `text` block, so a renderer keeps its lines as
+drawn. That costs what a rendered table gives:
+
+| Plain Markdown table                   | Box table in a code block                          |
+| -------------------------------------- | -------------------------------------------------- |
+| the renderer wraps cells to the window | lines never wrap, so a too-wide one breaks the box |
+| links stay clickable                   | links and emphasis print as raw text               |
+| reads as `\|` and `---` when shown raw | reads the same raw and rendered                    |
+| widths counted by the renderer         | widths counted by the script, glyph by glyph       |
+
+So a box table is drawn to the terminal's width, never past it, and
+holds no link the reader needs to click.
+
 ### Fit the terminal's width, with balanced columns
 
 A renderer that wraps cells to the window chooses for itself how to share
@@ -78,13 +109,24 @@ half. Choose the shape yourself, before the renderer has to:
   plus 1. Keep that within the reader's terminal width.
 - **Know the width.** In the reader's own shell, it is `$COLUMNS` or
   `tput cols`. An agent's shell usually has no terminal, so `$COLUMNS` is
-  empty or 0 there and `tput cols` says 80 whatever the window is.
-  Take the width from your preferences (below), or else assume 100.
+  empty or 0 there and `tput cols` says 80 whatever the window is. Take
+  the width, in this order, from:
+  1. a line in your system prompt saying "The terminal is N columns
+     wide", which a terminal-width mod adds each turn and updates when the
+     window is resized;
+  2. your preferences (below), as `- Table width: N`;
+  3. otherwise, 100.
 - **Balance the columns.** When the table is too wide, shorten the
   widest cells first, so the columns come out of similar width and none
   is left with a single word per line: a phrase in place of a sentence, a
   name in place of a description, the detail moved to a note under the
   table.
+- **Wrap cells on purpose.** Work out each column's share of the width
+  before writing the cells, then write each cell to fit it: short
+  phrases whose wraps land between words, never inside a name, number or
+  link label. Aim for every column wrapping to about the same number of
+  lines; a table whose one column takes 4 lines while the others take 1
+  is unbalanced even if it fits.
 - **Never narrower than a word.** Leave each column at least as wide as
   its longest word, link label or code span, since a renderer that must
   go narrower breaks it in half.
