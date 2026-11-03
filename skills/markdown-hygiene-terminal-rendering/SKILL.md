@@ -7,7 +7,7 @@ description: |
   block, and let the terminal renderer draw them, but keep them within the
   terminal's width with balanced columns, shortening the widest cells
   first and writing each cell to wrap between words. Take the width from
-  a terminal-width mod's system-prompt line, else the preferences, else
+  a terminal-width mod's latest note in the conversation, else the preferences, else
   100. Draw a box table with `scripts/box_table.py` only where nothing
   renders the Markdown. Check a new glyph's
   rendered width before putting it in an underline or a table
@@ -111,9 +111,9 @@ half. Choose the shape yourself, before the renderer has to:
   `tput cols`. An agent's shell usually has no terminal, so `$COLUMNS` is
   empty or 0 there and `tput cols` says 80 whatever the window is. Take
   the width, in this order, from:
-  1. a line in your system prompt saying "The terminal is N columns
-     wide", which a terminal-width mod adds each turn and updates when the
-     window is resized;
+  1. the latest note in the conversation saying "The terminal is N
+     columns wide", which a terminal-width mod adds before a prompt
+     whenever the width has changed since the last one;
   2. your preferences (below), as `- Table width: N`;
   3. otherwise, 100.
 - **Balance the columns.** When the table is too wide, shorten the
