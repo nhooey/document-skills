@@ -3,8 +3,8 @@ name: markdown-hygiene-terminal-rendering
 description: |
   Write Markdown that reads correctly in a terminal, where it is shown raw
   or only partly rendered on a grid of fixed-width columns. Write tables
-  as plain Markdown tables with padded source columns, never in a code
-  block, and let the terminal renderer draw them, but keep them within the
+  as plain Markdown tables with padded source columns and a blank line
+  above and below, never in a code block or a list item, and let the terminal renderer draw them, but keep them within the
   terminal's width with balanced columns, shortening the widest cells
   first and writing each cell to wrap between words. Take the width from
   a terminal-width mod's latest note in the conversation, else the preferences, else
@@ -57,6 +57,9 @@ table and let it:
 
 - **The syntax:** a header row, a delimiter row and the body rows, as
   `markdown-hygiene-lists-headings-tables` says.
+- **A blank line above and below** every table. A line of text directly
+  under the last row is drawn as one more row of the table, its text in
+  the first cell.
 - **Right-align numbers** with `---:` in the delimiter row, so their digits
   line up.
 - **Pad the source columns** to their widest cell, so the table also reads
@@ -69,11 +72,10 @@ table and let it:
 - **Not inside a code block.** A table in a fenced block is printed as
   raw `|` and `---`.
 - **Not inside a list item.** A table indented under a list item is
-  printed as raw pipe rows that run into the item's text, and a line
-  straight after it can be read as one more row. When an item needs a
-  table, end the list, put the table in its own block with a blank line
-  before and after it, and name the item it belongs to in the line above
-  it.
+  printed as raw pipe rows that run into the item's text, however narrow
+  it is. When an item needs a table, end the list with a blank line, name
+  the item in a line of its own, then a blank line, the table, and a blank
+  line.
 
 ### Box-drawn tables
 
