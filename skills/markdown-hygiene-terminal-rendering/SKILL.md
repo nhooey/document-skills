@@ -16,7 +16,8 @@ description: |
   whitespace lines collapse.
   End a header line with a hard line break (2 trailing spaces) before an
   underline. Write every URL as a Markdown link, never bare, and never
-  inside a code block. Use whenever writing Markdown that a
+  inside a code block. Put each command for the reader to run on a line of
+  its own, opened by a marker naming where it runs. Use whenever writing Markdown that a
   person will read in a terminal: a coding agent's replies, CLI output,
   commit and tag messages read with `git log`, READMEs read with `cat` or
   `less`, and notes in a terminal pager.
@@ -250,9 +251,24 @@ spaces in the files where you rely on them.
 - **Never inside a code block**, where it is printed as text and can't be
   clicked. A Markdown table's cell can hold a link (see Tables above).
 
-- **Text the reader copies** (a command, a prompt, a config snippet) stays
-  in its code block, URL included: there the point is copying the exact
-  text, not clicking.
+- **Text the reader copies** (a prompt, a config snippet) stays in its
+  code block, URL included: there the point is copying the exact text, not
+  clicking. A command to run follows [the next section](#commands-for-the-reader-to-run).
+
+## Commands for the reader to run
+
+Put each command on one line of its own, with its marker and the command
+on that same line, the command in inline code:
+
+- **`💻 ❯`** for a command to run in the reader's own terminal.
+- **`✴️ ❯`** for one to paste at a coding agent's prompt, with the agent's
+  shell prefix included, such as `!` in Claude Code, so its output lands in
+  the conversation.
+
+A command that asks for a password always uses `💻 ❯`.
+
+Both markers are safe on a line of their own; check their widths before
+putting one in a table.
 
 ## When to apply
 
@@ -265,6 +281,7 @@ spaces in the files where you rely on them.
   can't be clicked in the terminal.
 - A table is wider than the terminal, or one of its columns wraps to a
   word per line.
+- Asking the reader to run a command.
 
 ## Your preferences
 
