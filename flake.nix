@@ -98,9 +98,9 @@
 
           apps = base.apps.${system};
 
-          # `nix fmt` runs nixfmt over `.nix` and prettier over `.md` / `.yaml`;
-          # the module also surfaces a `checks.${system}.treefmt` so `nix flake
-          # check` fails on any unformatted file. prettier's includes are pinned
+          # `nix fmt` runs nixfmt over `.nix` and prettier over `.md` / `.yaml`
+          # / `.yml`; the module also surfaces a `checks.${system}.treefmt` so
+          # `nix flake check` fails on any unformatted file. prettier's includes are pinned
           # to markdown and YAML so it leaves JSON and other file types alone —
           # add formatters here as other tracked file types arrive.
           treefmt = {

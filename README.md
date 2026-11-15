@@ -42,6 +42,6 @@ Package outputs:
 
 ```bash
 nix develop      # enter the dev shell; run `menu` to list commands
-nix fmt          # nixfmt over *.nix, prettier over *.md / *.yaml
+nix fmt          # nixfmt over *.nix, prettier over *.md / *.yaml / *.yml
 nix flake check  # runs the treefmt check (fails on any unformatted file)
 ```
