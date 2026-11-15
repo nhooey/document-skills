@@ -66,7 +66,7 @@
       # envName and packagePrefix are left at their library defaults:
       # mkDevshellSkillsFlake derives envName = "agent-skills-${name}"
       # (== agent-skills-document-skills-devshell) and packagePrefix
-      # defaults to "agent-skill-", so both equal what was spelled out here.
+      # defaults to "agent-skill-".
       sources = [
         { source = inputs.git-skills; }
         # Safe shell commands: named deletes, PIDs, no machine-wide changes.
