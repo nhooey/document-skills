@@ -19,7 +19,7 @@ Each skill is a self-contained directory under [`skills/`](skills/) with a
 | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | [`markdown-hygiene-escape-reserved-characters`](skills/markdown-hygiene-escape-reserved-characters/SKILL.md) | Escape the characters Markdown would read as formatting, by backslash or code span, and only those.                               |
 | [`markdown-hygiene-lists-headings-tables`](skills/markdown-hygiene-lists-headings-tables/SKILL.md)           | List nesting and hard line breaks, ATX heading levels, table pipes and alignment, `<br/>` and ✅/❌ cells, a linked first column. |
-| [`markdown-hygiene-terminal-rendering`](skills/markdown-hygiene-terminal-rendering/SKILL.md)                 | Markdown read in a terminal: box-drawing tables padded for emoji width, glyph width checks, U+2800 separator lines, links.        |
+| [`markdown-hygiene-terminal-rendering`](skills/markdown-hygiene-terminal-rendering/SKILL.md)                 | Markdown read in a terminal: tables fitted to its width, glyph width checks, U+2800 separator lines, links, commands to run.      |
 
 ## Install
 

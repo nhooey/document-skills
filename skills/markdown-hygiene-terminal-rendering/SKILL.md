@@ -1,46 +1,22 @@
 ---
 name: markdown-hygiene-terminal-rendering
-description: |
-  Write Markdown that reads correctly in a terminal, where it is shown raw
-  or only partly rendered on a grid of fixed-width columns. Write tables
-  as plain Markdown tables with padded source columns and a blank line
-  above and below, never in a code block or a list item, and let the terminal renderer draw them, but keep them within the
-  terminal's width with balanced columns, shortening the widest cells
-  first and writing each cell to wrap between words. Take the width from
-  a terminal-width mod's latest note in the conversation, else the preferences, else
-  100. Draw a box table with `scripts/box_table.py` only where nothing
-  renders the Markdown. Check a new glyph's
-  rendered width before putting it in an underline or a table
-  (`scripts/box_table.py --probe`). Part multi-line list items with a
-  separator line holding the list's indent and U+2800, because blank and
-  whitespace lines collapse.
-  End a header line with a hard line break (2 trailing spaces) before an
-  underline. Write every URL as a Markdown link, never bare, and never
-  inside a code block. Put each command for the reader to run on a line of
-  its own, opened by a marker naming where it runs. Use whenever writing Markdown that a
-  person will read in a terminal: a coding agent's replies, CLI output,
-  commit and tag messages read with `git log`, READMEs read with `cat` or
-  `less`, and notes in a terminal pager.
+description: >-
+  Write Markdown that reads correctly in a terminal, where it is shown raw or only partly rendered on a grid of fixed-width columns. Write tables as plain Markdown tables with padded source columns and a blank line above and below, never in a code block or a list item, and let the terminal renderer draw them, but keep them within the terminal's width with balanced columns, shortening the widest cells first and writing each cell to wrap between words. Take the width from a terminal-width mod's latest note in the conversation, else the preferences, else 100. Draw a box table with `scripts/box_table.py` only where nothing renders the Markdown. Check a new glyph's rendered width before putting it in an underline or a table (`scripts/box_table.py --probe`). Part multi-line list items with a separator line holding the list's indent and U+2800, because blank and whitespace lines collapse. End a header line with a hard line break (2 trailing spaces) before an underline. Write every URL as a Markdown link, never bare, and never inside a code block. Put each command for the reader to run on a line of its own, opened by a marker naming where it runs. Use whenever writing Markdown that a person will read in a terminal: a coding agent's replies, CLI output, commit and tag messages read with `git log`, READMEs read with `cat` or `less`, and notes in a terminal pager.
 tags: [markdown, terminal, writing]
 ---
 
 # Markdown in a terminal
+
+_Markdown a terminal shows must read well raw and render well in the terminal renderers in common use: tables fitted to the width, glyphs of known width, gaps that survive, and links that can be clicked._
 
 A terminal draws text on a grid of fixed-width columns. Markdown sent to it
 is either printed raw or passed through a renderer that handles some syntax
 (emphasis, links, lists, tables) and not the rest. Either way, some of what
 a browser would lay out for you is now your job: the gaps between items,
 where a line breaks, the width of each glyph, and which text can be
-clicked. The rules below make
-the source read well raw and render well in the terminal renderers in
-common use.
-
-## How to load this skill
-
-Passive reference. Load it whenever the reader will see your Markdown in a
-terminal; it applies on top of ordinary Markdown syntax, so load
+clicked. These rules apply on top of ordinary Markdown syntax, so load
 `markdown-hygiene-lists-headings-tables` and
-`markdown-hygiene-escape-reserved-characters` beside it.
+`markdown-hygiene-escape-reserved-characters` beside this skill.
 
 ## Tables: plain Markdown tables
 
@@ -249,11 +225,12 @@ spaces in the files where you rely on them.
 - **Never a bare URL.** A long one wraps across lines and stops being
   clickable, and the reader can't tell what it opens until they open it.
 - **Never inside a code block**, where it is printed as text and can't be
-  clicked. A Markdown table's cell can hold a link (see Tables above).
-
+  clicked. A Markdown table's cell can hold a link, as
+  [Tables: plain Markdown tables](#tables-plain-markdown-tables) says.
 - **Text the reader copies** (a prompt, a config snippet) stays in its
   code block, URL included: there the point is copying the exact text, not
-  clicking. A command to run follows [the next section](#commands-for-the-reader-to-run).
+  clicking. A command to run follows
+  [Commands for the reader to run](#commands-for-the-reader-to-run).
 
 ## Commands for the reader to run
 
