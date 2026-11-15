@@ -1,23 +1,13 @@
 ---
 name: markdown-hygiene-lists-headings-tables
-description: |
-  The Markdown syntax for lists, headings and tables, so the structure you
-  chose renders as you meant it. Lists: one marker per list, nesting by the
-  parent's text column, ordered lists for sequences, a lead-in colon, blank
-  lines around the list, hard line breaks inside an item. Headings: ATX
-  `#` syntax, one H1, no skipped levels, no closing period, a real heading
-  rather than a bold line so it gets an anchor and a table-of-contents
-  entry. Tables: header and delimiter rows, pipes and alignment colons,
-  `\|` in cells, an explicit `—` or `N/A` for an empty cell, `<br/>` for a
-  second line in a cell, ✅/❌ for genuinely binary cells, and a first
-  column that links each item's name. Use whenever writing or reviewing
-  Markdown that holds a list, a heading or a table. Deciding whether the
-  content should be a list, a heading tree or a table is a writing
-  question, covered by the writing-hygiene skills named inside.
+description: >-
+  Write the Markdown syntax for lists, headings and tables so the structure you chose renders as you meant it. Lists: one marker per list, nesting by the parent's text column, ordered lists for sequences, a lead-in colon, blank lines around the list, hard line breaks inside an item. Headings: ATX `#` syntax, one H1, no skipped levels, no closing period, a real heading rather than a bold line so it gets an anchor and a table-of-contents entry. Tables: header and delimiter rows, pipes and alignment colons, `\|` in cells, a blank line above and below, an explicit `—` or `N/A` for an empty cell, `<br/>` for a second line in a cell, ✅/❌ for genuinely binary cells, and a first column that links each item's name. Use whenever writing or reviewing Markdown that holds a list, a heading or a table. Whether the content should be a list, a heading tree or a table is a writing question, covered by the writing-hygiene skills named in Related skills.
 tags: [markdown, writing]
 ---
 
 # Markdown syntax for lists, headings and tables
+
+_Once the content is a list, an outline or a table, write its syntax so the renderer builds that structure and not a different one._
 
 Once you have decided that content is a list, an outline of headings or a
 table, the remaining work is syntax: a renderer that reads the wrong indent,
@@ -27,21 +17,15 @@ a list, a heading or a table, and how to convert prose faithfully, is in
 `writing-hygiene-prose-to-lists`, `writing-hygiene-headings-as-outline` and
 `writing-hygiene-tables-for-comparison`.
 
-## How to load this skill
-
-Passive reference. Load it alongside the writing skill that chose the
-structure, or on its own when reviewing Markdown whose lists, headings or
-tables render wrong.
-
 ## Lists
 
 - **One marker per list.** Use `-` for bullets throughout a document; a
-  change of marker (`-` to `*`) starts a new list in CommonMark, which can
-  add a gap or reset numbering.
+  change of marker (`-` to `*`, or `1.` to `1)`) starts a new list in
+  CommonMark, which can add a gap or restart the numbering.
 - **Ordered lists for sequences and priorities.** Write `1.`, `2.`, `3.`.
-  A list whose first number is not 1 starts at that number, and a renderer
-  may renumber the rest, so number in order rather than relying on `1.` for
-  every line.
+  A renderer numbers from the first item's number and ignores the rest, so
+  the later numbers matter only to someone reading the source: number in
+  order rather than writing `1.` on every line.
 - **Nest by the parent's text column.** A child item is indented to where
   the parent's text starts: 2 spaces under `- `, 3 under `1. `, 4 under
   `10. `. Fewer spaces and the child becomes a sibling; 4 or more beyond
@@ -49,9 +33,10 @@ tables render wrong.
 - **Continuation lines and paragraphs inside an item** use the same indent
   as the item's text. An unindented line ends the item.
 - **Blank lines around a list.** Put a blank line before the first item and
-  after the last. Without the one before, some renderers (and every
-  renderer, after a paragraph line ending in text) fold the first item into
-  the paragraph above.
+  after the last. Without the one before, an ordered list starting at any
+  number but 1 is folded into the paragraph above in CommonMark, and so is
+  any list in older renderers; without the one after, a following
+  unindented line can join the last item.
 - **Tight and loose lists.** Blank lines between items make the whole list
   "loose", rendering each item as a paragraph with extra space. Keep items
   together unless they hold several paragraphs.
@@ -111,12 +96,14 @@ value.
   Without the delimiter row it is not a table.
 - **Leading and trailing pipes** on every row. They are optional in GFM but
   make the row boundaries unmistakable.
-- **Alignment** goes in the delimiter row: `:---` left (the default),
-  `:---:` centre, `---:` right. Right-align numbers so their digits line up.
+- **Alignment** goes in the delimiter row: `:---` left,
+  `:---:` centre, `---:` right; a plain `---` leaves it to the renderer,
+  which usually left-aligns. Right-align numbers so their digits line up.
 - **The same number of cells in every row** as in the header. A row with
   fewer gets empty cells; a row with more loses the extra ones.
-- **A blank line before the table.** Directly under a paragraph line some
-  renderers read it as more paragraph.
+- **A blank line above and below the table.** Directly under a paragraph
+  line some renderers read the table as more paragraph, and in GFM a line
+  of text directly under the last row becomes one more row.
 - **Padding the source** so the pipes line up is optional for the renderer
   and kind to the next person reading the raw file; a formatter such as
   prettier does it for you. A table read raw, in a terminal, is a different
