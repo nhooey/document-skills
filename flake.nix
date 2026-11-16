@@ -98,6 +98,26 @@
 
           apps = base.apps.${system};
 
+          # Unit and command tests for the terminal-rendering skill's
+          # box_table.py. Its source is only scripts/ and tests/, so an edit
+          # to SKILL.md doesn't rerun them.
+          checks.box-table =
+            let
+              skill = ./skills/markdown-hygiene-terminal-rendering;
+              src = pkgs.lib.fileset.toSource {
+                root = skill;
+                fileset = pkgs.lib.fileset.unions [
+                  (skill + "/scripts")
+                  (skill + "/tests")
+                ];
+              };
+            in
+            pkgs.runCommand "box-table-tests" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+              cd ${src}
+              python3 -I -B -m unittest discover -s tests
+              touch $out
+            '';
+
           # `nix fmt` runs nixfmt over `.nix` and prettier over `.md` / `.yaml`
           # / `.yml`; the module also surfaces a `checks.${system}.treefmt` so
           # `nix flake check` fails on any unformatted file. prettier's includes are pinned
