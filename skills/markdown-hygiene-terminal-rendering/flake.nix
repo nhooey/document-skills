@@ -1,5 +1,5 @@
 {
-  description = "markdown-hygiene-terminal-rendering: Agent skill — Markdown read in a terminal: box-drawing tables padded for emoji width, glyph width checks, the U+2800 separator line, hard line breaks and clickable links";
+  description = "markdown-hygiene-terminal-rendering: Agent skill — Markdown read in a terminal: tables fitted to its width, glyph width checks, the U+2800 separator line, hard line breaks, clickable links and commands for the reader to run";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
