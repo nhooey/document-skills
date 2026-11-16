@@ -106,23 +106,26 @@ def right_columns(spec: str) -> frozenset[int]:
     return frozenset(int(n) for n in spec.split(",") if n.strip())
 
 
-def main(argv: list[str]) -> tuple[int, str]:
-    args = argparse.ArgumentParser(prog="box_table.py", description=__doc__.split("\n")[0])
-    args.add_argument("--right", default="", metavar="N,M", help="0-based columns to right-align")
-    args.add_argument("--probe", metavar="GLYPH", help="draw a test table to check GLYPH's width")
-    ns = args.parse_args(argv)
-    if ns.probe:
-        return 0, probe(ns.probe)
+def render(text: str, right_spec: str) -> tuple[int, str]:
+    """Exit status and output for tab-separated `text` drawn with `--right right_spec`."""
     try:
-        rows = parse(sys.stdin.read())
+        rows = parse(text)
         result = (
-            (0, draw(rows, right_columns(ns.right)))
+            (0, draw(rows, right_columns(right_spec)))
             if rows
             else (1, "box_table.py: no rows on stdin")
         )
     except (RowError, ValueError) as error:
         result = (1, f"box_table.py: {error}")
     return result
+
+
+def main(argv: list[str]) -> tuple[int, str]:
+    args = argparse.ArgumentParser(prog="box_table.py", description=__doc__.split("\n")[0])
+    args.add_argument("--right", default="", metavar="N,M", help="0-based columns to right-align")
+    args.add_argument("--probe", metavar="GLYPH", help="draw a test table to check GLYPH's width")
+    ns = args.parse_args(argv)
+    return (0, probe(ns.probe)) if ns.probe else render(sys.stdin.read(), ns.right)
 
 
 if __name__ == "__main__":
