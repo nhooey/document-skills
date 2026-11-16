@@ -1,7 +1,7 @@
 """Tests for scripts/box_table.py: unit tests of its pure functions, then the command itself.
 
-Run from the skill directory with `python3 -I -B -m unittest discover -s tests`;
-`nix flake check` runs them as `checks.<system>.box-table`.
+Run them in the dev shell with `doc-skills test markdown-hygiene-terminal-rendering`;
+`nix flake check` runs them as `checks.<system>.skill-tests`.
 """
 
 from __future__ import annotations
