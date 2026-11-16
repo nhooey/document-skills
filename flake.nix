@@ -92,31 +92,74 @@
         '';
       };
       perSystem =
-        { system, pkgs, ... }:
+        {
+          system,
+          pkgs,
+          lib,
+          ...
+        }:
+        let
+          # tools/doc_skills.py, installed as `doc-skills` with its shebang
+          # pointed at the dev shell's Python.
+          docSkills =
+            pkgs.runCommand "doc-skills"
+              {
+                buildInputs = [ pkgs.python3 ];
+                meta.mainProgram = "doc-skills";
+              }
+              ''
+                install -Dm755 ${./tools/doc_skills.py} $out/bin/doc-skills
+                patchShebangs $out/bin
+              '';
+        in
         {
           packages = base.packages.${system};
 
           apps = base.apps.${system};
 
-          # Unit and command tests for the terminal-rendering skill's
-          # box_table.py. Its source is only scripts/ and tests/, so an edit
-          # to SKILL.md doesn't rerun them.
-          checks.box-table =
+          # Every skill's unittest suite, run through the dev shell's own
+          # `doc-skills test`. Its source is only each skill's SKILL.md,
+          # scripts/ and tests/, so an edit to a reference page doesn't rerun
+          # them.
+          checks.skill-tests =
             let
-              skill = ./skills/markdown-hygiene-terminal-rendering;
-              src = pkgs.lib.fileset.toSource {
-                root = skill;
-                fileset = pkgs.lib.fileset.unions [
-                  (skill + "/scripts")
-                  (skill + "/tests")
-                ];
+              skillDirs = lib.attrNames (
+                lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./skills)
+              );
+              src = lib.fileset.toSource {
+                root = ./.;
+                fileset = lib.fileset.unions (
+                  lib.concatMap (name: [
+                    (lib.fileset.maybeMissing (./skills + "/${name}/SKILL.md"))
+                    (lib.fileset.maybeMissing (./skills + "/${name}/scripts"))
+                    (lib.fileset.maybeMissing (./skills + "/${name}/tests"))
+                  ]) skillDirs
+                );
               };
             in
-            pkgs.runCommand "box-table-tests" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-              cd ${src}
-              python3 -I -B -m unittest discover -s tests
+            pkgs.runCommand "skill-tests" { } ''
+              ${lib.getExe docSkills} --root ${src} test
               touch $out
             '';
+
+          # Tests of doc-skills itself: its argument parsing, its pure
+          # functions and the command.
+          checks.doc-skills = pkgs.runCommand "doc-skills-tests" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+            cd ${./tools}
+            python3 -I -B -m unittest discover -s tests
+            touch $out
+          '';
+
+          # The repository's own command, beside the module's check / fmt /
+          # update-flake and skills commands in the dev shell's menu.
+          devshells.default.commands = [
+            {
+              category = "dev";
+              name = "doc-skills";
+              package = docSkills;
+              help = "List the skills and run their tests (doc-skills --help)";
+            }
+          ];
 
           # `nix fmt` runs nixfmt over `.nix` and prettier over `.md` / `.yaml`
           # / `.yml`; the module also surfaces a `checks.${system}.treefmt` so
@@ -133,14 +176,6 @@
               "*.yml"
             ];
           };
-
-          # The devshellSkills module (imported above) supplies this devShell's
-          # name, motd, the install-skills startup that reconciles the runtime
-          # `skills-devshell/` sub-flake at project scope, the ci/dev/maintenance
-          # command trio (check / fmt / update-flake), and the skills commands
-          # (reap-skills / update-skills-devshell). This repo adds no dev-shell
-          # packages or commands of its own, so there is no `devshells.default`
-          # block here.
         };
     };
 }
