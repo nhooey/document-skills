@@ -7,8 +7,9 @@ is a directory under `skills/` with a `SKILL.md` and its own `flake.nix`.
 
 ## Build and test
 
-- `nix develop` enters the dev shell and installs the project's skills into
-  `.agents/skills/` from the `skills-devshell/` sub-flake.
+- `nix develop` enters the dev shell and installs the skills its agents
+  use, listed in the `skills-devshell/` sub-flake, into `.agents/skills/`.
+  The skills under `skills/` are not among them.
 - `menu` lists the dev shell's commands, each with a line of help.
 - `fmt` (`nix fmt`) formats `*.nix` with nixfmt and `*.md`, `*.yaml` and
   `*.yml` with prettier.
