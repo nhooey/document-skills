@@ -13,8 +13,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Dev-shell skill sources. Each skill repository is pinned to its
-    # `overnight-skills` branch while the cross-repository cleanup runs.
+    # Dev-shell skill sources, each at its repository's default branch.
     # They follow the parent `nixpkgs` but NOT `agent-skill-flake`: forcing skillspkgs' `authoring` combination's
     # transitive sources onto a single pinned builder surfaces an ownerless
     # aggregate-key the strict namespace check rejects, so each source keeps
@@ -22,23 +21,23 @@
     # flake's `agent-skill-flake.lib`, so the combiner is the pinned rev above.
 
     coding-agent-skills = {
-      url = "github:nhooey/coding-agent-skills/overnight-skills";
+      url = "github:nhooey/coding-agent-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     git-skills = {
-      url = "github:nhooey/git-skills/overnight-skills";
+      url = "github:nhooey/git-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     python-skills = {
-      url = "github:nhooey/python-skills/overnight-skills";
+      url = "github:nhooey/python-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     shell-skills = {
-      url = "github:nhooey/shell-skills/overnight-skills";
+      url = "github:nhooey/shell-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     writing-skills = {
-      url = "github:nhooey/writing-skills/overnight-skills";
+      url = "github:nhooey/writing-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
