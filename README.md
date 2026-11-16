@@ -42,6 +42,7 @@ Package outputs:
 
 ```bash
 nix develop      # enter the dev shell; run `menu` to list commands
-nix fmt          # nixfmt over *.nix, prettier over *.md / *.yaml / *.yml
-nix flake check  # runs the treefmt check and box_table.py's tests
+fmt              # nixfmt over *.nix, prettier over *.md / *.yaml / *.yml
+doc-skills test  # run every skill's tests
+check            # nix flake check: the treefmt check and all the tests
 ```
