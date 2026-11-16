@@ -74,9 +74,8 @@
         # (motd, install-skills startup, the ci/dev/maintenance command trio,
         # and the reap-skills/update-skills-devshell pair). Configured via the
         # `agent-skill-flake.devshellSkills` options block below. The dev-shell
-        # skill set (the git/GitHub pack plus skillspkgs' `authoring`
-        # combination) is defined in the runtime `skills-devshell/` sub-flake
-        # and invoked at RUNTIME, never as a root input, so this repo keeps zero
+        # skill set is defined in the runtime `skills-devshell/` sub-flake and
+        # invoked at RUNTIME, never as a root input, so this repo keeps zero
         # skill inputs in its own lock.
         inputs.agent-skill-flake.flakeModules.devshellSkills
         inputs.treefmt-nix.flakeModule
