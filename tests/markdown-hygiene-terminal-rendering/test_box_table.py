@@ -1,7 +1,8 @@
-"""Tests for scripts/box_table.py: unit tests of its pure functions, then the command itself.
+"""Tests for the skill's scripts/box_table.py: unit tests of its pure functions, then the command.
 
-Run them in the dev shell with `doc-skills test markdown-hygiene-terminal-rendering`;
-`nix flake check` runs them as `checks.<system>.skill-tests`.
+`tests/conftest.py` puts the skill's `scripts/` on `sys.path`. Run them in the dev shell with
+`doc-skills test markdown-hygiene-terminal-rendering`; `nix flake check` runs them as
+`checks.<system>.pytest`.
 """
 
 from __future__ import annotations
@@ -11,49 +12,36 @@ import sys
 import unittest
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "box_table.py"
-sys.path.insert(0, str(SCRIPT.parent))
+import box_table
+import pytest
 
-import box_table  # noqa: E402
+SCRIPT = Path(box_table.__file__)
 
 VS16 = "️"  # emoji presentation selector
 ZWJ = "‍"  # zero-width joiner
 COMBINING_ACUTE = "́"
 
 
-class WidthTest(unittest.TestCase):
-    def test_ascii_counts_one_column_per_character(self) -> None:
-        self.assertEqual(box_table.width("abc"), 3)
-
-    def test_empty_string_is_zero(self) -> None:
-        self.assertEqual(box_table.width(""), 0)
-
-    def test_wide_emoji_counts_two(self) -> None:
-        self.assertEqual(box_table.width("✅"), 2)
-        self.assertEqual(box_table.width("🏃"), 2)
-
-    def test_east_asian_wide_and_fullwidth_count_two(self) -> None:
-        self.assertEqual(box_table.width("漢字"), 4)
-        self.assertEqual(box_table.width("Ａ"), 2)
-
-    def test_combining_mark_counts_zero(self) -> None:
-        self.assertEqual(box_table.width("e" + COMBINING_ACUTE), 1)
-
-    def test_zero_width_joiner_counts_zero(self) -> None:
-        self.assertEqual(box_table.width(ZWJ), 0)
-
-    def test_presentation_selector_widens_a_narrow_character_to_two(self) -> None:
-        self.assertEqual(box_table.width("❤"), 1)
-        self.assertEqual(box_table.width("❤" + VS16), 2)
-
-    def test_presentation_selector_leaves_a_wide_character_at_two(self) -> None:
-        self.assertEqual(box_table.width("✅" + VS16), 2)
-
-    def test_presentation_selector_on_its_own_counts_zero(self) -> None:
-        self.assertEqual(box_table.width(VS16), 0)
-
-    def test_presentation_selector_widens_only_the_character_before_it(self) -> None:
-        self.assertEqual(box_table.width("a❤" + VS16 + "b"), 4)
+@pytest.mark.parametrize(
+    ("text", "columns"),
+    [
+        pytest.param("abc", 3, id="ascii counts one column per character"),
+        pytest.param("", 0, id="empty string is zero"),
+        pytest.param("✅", 2, id="wide emoji counts two"),
+        pytest.param("🏃", 2, id="another wide emoji counts two"),
+        pytest.param("漢字", 4, id="east asian wide counts two"),
+        pytest.param("Ａ", 2, id="fullwidth counts two"),
+        pytest.param("e" + COMBINING_ACUTE, 1, id="combining mark counts zero"),
+        pytest.param(ZWJ, 0, id="zero width joiner counts zero"),
+        pytest.param("❤", 1, id="narrow character without a selector counts one"),
+        pytest.param("❤" + VS16, 2, id="presentation selector widens a narrow character to two"),
+        pytest.param("✅" + VS16, 2, id="presentation selector leaves a wide character at two"),
+        pytest.param(VS16, 0, id="presentation selector on its own counts zero"),
+        pytest.param("a❤" + VS16 + "b", 4, id="selector widens only the character before it"),
+    ],
+)
+def test_width(text: str, columns: int) -> None:
+    assert box_table.width(text) == columns
 
 
 class PadTest(unittest.TestCase):
@@ -225,7 +213,3 @@ class CommandTest(unittest.TestCase):
         result = run(["--probe", "🔗"], "not\ta\ttable\nx\n")
         self.assertEqual(result.returncode, 0)
         self.assertIn("U+1F517: counted 2 columns wide", result.stdout)
-
-
-if __name__ == "__main__":
-    unittest.main()

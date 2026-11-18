@@ -99,56 +99,87 @@
           ...
         }:
         let
-          # tools/doc_skills.py, installed as `doc-skills` with its shebang
-          # pointed at the dev shell's Python.
-          docSkills =
-            pkgs.runCommand "doc-skills"
-              {
-                buildInputs = [ pkgs.python3 ];
-                meta.mainProgram = "doc-skills";
-              }
-              ''
-                install -Dm755 ${./tools/doc_skills.py} $out/bin/doc-skills
-                patchShebangs $out/bin
-              '';
+          # The Python the Python tests run on. Only maintainers run the
+          # tests, so they may use libraries; the skills' own Python scripts
+          # stay standard library, which tests/test_layout.py checks.
+          testPython = pkgs.python3.withPackages (ps: [
+            ps.pytest
+            ps.pyyaml
+          ]);
+
+          # `doc-skills test` runs each language's tool on tests/, and
+          # `doc-skills test SKILL...` on tests/SKILL..., from $PRJ_ROOT (set
+          # by the dev shell), else the current directory. A named skill must
+          # have a folder under tests/, and each language's tool runs only on
+          # the named folders holding that language's tests; a named folder
+          # holding none fails, as does a tool that runs no test. Each
+          # language's tool runs with the same command here as in that
+          # language's check below: pytest as `python3 -I -B -m pytest`, on
+          # testPython.
+          docSkills = pkgs.writeShellApplication {
+            name = "doc-skills";
+            runtimeInputs = [
+              testPython
+              pkgs.findutils
+            ];
+            text = builtins.readFile ./tools/doc-skills.sh;
+          };
         in
         {
           packages = base.packages.${system};
 
           apps = base.apps.${system};
 
-          # Every skill's unittest suite, run through the dev shell's own
-          # `doc-skills test`. Its source is only each skill's SKILL.md,
-          # scripts/ and tests/, so an edit to a reference page doesn't rerun
-          # them.
-          checks.skill-tests =
+          # One check per language, each running that language's tool on its
+          # tests under tests/, as `doc-skills test` does.
+          #
+          # pytest: its source is pytest.ini, tests/, each skill's SKILL.md
+          # and scripts/, and every file under skills/ that
+          # tests/test_layout.py would reject: one named like a test, or one
+          # inside a tests/ or test/ folder. An edit to a reference page
+          # doesn't rerun it.
+          checks.pytest =
             let
               skillDirs = lib.attrNames (
                 lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./skills)
               );
+              namedLikeTest =
+                name: lib.hasPrefix "test_" name || lib.hasInfix "_test." name || lib.hasSuffix ".bats" name;
+              misplacedTests = lib.fileset.fromSource (
+                lib.cleanSourceWith {
+                  src = ./skills;
+                  filter =
+                    path: type:
+                    type == "directory"
+                    || namedLikeTest (baseNameOf path)
+                    || lib.any (part: part == "tests" || part == "test") (
+                      lib.splitString "/" (lib.removePrefix "${toString ./skills}/" (toString path))
+                    );
+                }
+              );
               src = lib.fileset.toSource {
                 root = ./.;
                 fileset = lib.fileset.unions (
-                  lib.concatMap (name: [
+                  [
+                    ./pytest.ini
+                    ./tests
+                    misplacedTests
+                  ]
+                  ++ lib.concatMap (name: [
                     (lib.fileset.maybeMissing (./skills + "/${name}/SKILL.md"))
                     (lib.fileset.maybeMissing (./skills + "/${name}/scripts"))
-                    (lib.fileset.maybeMissing (./skills + "/${name}/tests"))
                   ]) skillDirs
                 );
               };
             in
-            pkgs.runCommand "skill-tests" { } ''
-              ${lib.getExe docSkills} --root ${src} test
-              touch $out
-            '';
+            pkgs.runCommand "pytest" {
+              inherit src;
+              nativeBuildInputs = [ testPython ];
+            } (builtins.readFile ./tools/pytest-check.sh);
 
-          # Tests of doc-skills itself: its argument parsing, its pure
-          # functions and the command.
-          checks.doc-skills = pkgs.runCommand "doc-skills-tests" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-            cd ${./tools}
-            python3 -I -B -m unittest discover -s tests
-            touch $out
-          '';
+          # The test Python, for pytest's own options (`python3 -m pytest -k
+          # NAME tests`) beyond what `doc-skills test` takes.
+          devshells.default.packages = [ testPython ];
 
           # The repository's own command, beside the module's check / fmt /
           # update-flake and skills commands in the dev shell's menu.
@@ -157,7 +188,7 @@
               category = "dev";
               name = "doc-skills";
               package = docSkills;
-              help = "List the skills and run their tests (doc-skills --help)";
+              help = "Run the tests: doc-skills test [SKILL...]";
             }
           ];
 

@@ -43,6 +43,6 @@ Package outputs:
 ```bash
 nix develop      # enter the dev shell; run `menu` to list commands
 fmt              # nixfmt over *.nix, prettier over *.md / *.yaml / *.yml
-doc-skills test  # run every skill's tests
+doc-skills test  # pytest tests: every test; name skills to run only theirs
 check            # nix flake check: the treefmt check and all the tests
 ```
