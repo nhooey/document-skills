@@ -100,11 +100,9 @@
         let
           # The Python the Python tests run on. Only maintainers run the
           # tests, so they may use libraries; the skills' own Python scripts
-          # stay standard library, which tests/test_layout.py checks.
-          testPython = pkgs.python3.withPackages (ps: [
-            ps.pytest
-            ps.pyyaml
-          ]);
+          # stay standard library, which agent-skill-flake's `skill-layout`
+          # check enforces.
+          testPython = pkgs.python3.withPackages (ps: [ ps.pytest ]);
 
           # `doc-skills test` runs each language's tool on tests/, and
           # `doc-skills test SKILL...` on tests/SKILL..., from $PRJ_ROOT (set
@@ -147,29 +145,13 @@
           # One check per language, each running that language's tool on its
           # tests under tests/, as the dev shell's command for it does.
           #
-          # pytest: its source is pytest.ini, tests/, each skill's SKILL.md
-          # and scripts/, and every file under skills/ that
-          # tests/test_layout.py would reject: one named like a test, or one
-          # inside a tests/ or test/ folder. An edit to a reference page
-          # doesn't rerun it.
+          # pytest: its source is pytest.ini, tests/ and each skill's
+          # SKILL.md and scripts/, for tests of the skills to read. An edit
+          # to a reference page doesn't rerun it.
           checks.pytest =
             let
               skillDirs = lib.attrNames (
                 lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./skills)
-              );
-              namedLikeTest =
-                name: lib.hasPrefix "test_" name || lib.hasInfix "_test." name || lib.hasSuffix ".bats" name;
-              misplacedTests = lib.fileset.fromSource (
-                lib.cleanSourceWith {
-                  src = ./skills;
-                  filter =
-                    path: type:
-                    type == "directory"
-                    || namedLikeTest (baseNameOf path)
-                    || lib.any (part: part == "tests" || part == "test") (
-                      lib.splitString "/" (lib.removePrefix "${toString ./skills}/" (toString path))
-                    );
-                }
               );
               src = lib.fileset.toSource {
                 root = ./.;
@@ -177,7 +159,6 @@
                   [
                     ./pytest.ini
                     ./tests
-                    misplacedTests
                   ]
                   ++ lib.concatMap (name: [
                     (lib.fileset.maybeMissing (./skills + "/${name}/SKILL.md"))

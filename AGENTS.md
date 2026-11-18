@@ -17,14 +17,19 @@ is a directory under `skills/` with a `SKILL.md` and its own `flake.nix`.
   check and runs the tests; it must pass before a change merges.
 - An installed skill ships only what it runs: its `SKILL.md`, its reference
   pages and `scripts/`. A skill's Python scripts import only the standard
-  library and each other.
+  library and each other, and no two skills' scripts share a module name.
+- Every `SKILL.md` opens with frontmatter whose `name` is the skill's folder
+  and whose `description` is at most 1,024 characters. A skill listed under
+  `trigger-first` in `skill-checks.toml` has a description that opens on
+  `trigger-first-prefix` and stays within 500 characters.
+- agent-skill-flake's `skill-layout` and `skill-description` checks enforce
+  these rules, including that no test sits under `skills/`, and read their
+  settings from `skill-checks.toml`.
 - Tests live outside the skills, under `tests/`, each language's run by that
   language's own tool:
   - A skill's tests go in `tests/<skill>/`, in the skill's language.
-  - Tests of every skill or of the repository go directly in `tests/`, such
-    as `tests/test_layout.py`, which fails on any test under `skills/` and on
-    a skill's Python script importing a third-party module.
-  - Python tests run with pytest and may use pytest and PyYAML.
+  - Tests of every skill or of the repository go directly in `tests/`.
+  - Python tests run with pytest, the one library they may import.
     `tests/conftest.py` puts `skills/<skill>/scripts/` on `sys.path` for the
     tests in `tests/<skill>/`, so they import a script by its module name.
     `pytest.ini` holds pytest's options.
