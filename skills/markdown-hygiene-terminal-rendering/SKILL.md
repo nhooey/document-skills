@@ -286,7 +286,7 @@ Order does the fold's work, as `writing-hygiene-progressive-disclosure` says: th
 
 ## Your preferences
 
-!`cat "${CLAUDE_SKILL_DIR}/../markdown-hygiene-terminal-rendering.preferences.md" "${CLAUDE_PROJECT_DIR}/.agents/skills/markdown-hygiene-terminal-rendering.preferences.md" 2>/dev/null || true`
+!`cat "$(dirname "${CLAUDE_SKILL_DIR}")/markdown-hygiene-terminal-rendering.preferences.md" "${CLAUDE_PROJECT_DIR}/.agents/skills/markdown-hygiene-terminal-rendering.preferences.md" 2>/dev/null || true`
 
 If your agent doesn't run the line above, read these files yourself if they
 exist: `markdown-hygiene-terminal-rendering.preferences.md` next to this skill's folder, then
