@@ -1,7 +1,7 @@
 ---
 name: markdown-hygiene-lists-headings-tables
 description: >-
-  Load when writing or reviewing any Markdown (a README, docs, a skill, a plan, a GitHub issue, comment or PR description, a commit message) or when a list, heading or table renders wrongly. Syntax only: one sentence per line in repository files, list nesting, heading levels, table pipes and collapsed sections. Whether to use a list, headings or a table is in the `writing-hygiene-*` skills.
+  Load when writing or reviewing any Markdown (a README, docs, a skill, a plan, a GitHub issue, comment or PR description, a commit message or a message to another project) or when a list, heading or table renders wrongly. Syntax only: one sentence per line in repository files, list nesting, heading levels, table pipes and collapsed sections. Whether to use a list, headings or a table is in the `writing-hygiene-*` skills.
 tags: [markdown, writing]
 ---
 
