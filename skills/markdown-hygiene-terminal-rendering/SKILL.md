@@ -265,6 +265,12 @@ line: join steps with `&&` rather than splitting them.
 Both markers are safe on a line of their own; check their widths before
 putting one in a table.
 
+## Nothing folds
+
+A terminal has no collapsed sections.
+A `<details>` block read there shows all of its content, usually with its tags as text around it, so leave the tags out of anything read in a terminal, a commit message included.
+Order does the fold's work, as `writing-hygiene-progressive-disclosure` says: the summary and what needs action first, and the detail last, or left out with the file or command that shows it.
+
 ## When to apply
 
 - Writing Markdown that a person reads in a terminal: a coding agent's
@@ -299,5 +305,6 @@ came from; don't apply it from memory.
 
 - `markdown-hygiene-lists-headings-tables`: the Markdown syntax for lists, headings and tables these rules build on.
 - `markdown-hygiene-escape-reserved-characters`: escaping characters that Markdown would read as formatting.
+- `writing-hygiene-progressive-disclosure`: the order that stands in for a fold, summary first and detail last or on request.
 - `coding-agent-kanban-turn-responses`: an agent's turn responses, which apply these rules to their lists, tables and links.
 - `coding-agent-skill-references`: where this skill's preferences files live and who writes them.

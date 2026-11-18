@@ -1,7 +1,7 @@
 ---
 name: markdown-hygiene-lists-headings-tables
 description: >-
-  Load when writing or reviewing any Markdown (a README, docs, a skill, a plan, a GitHub issue, comment or PR description, a commit message) or when a list, heading or table renders wrongly. Syntax only: one sentence per line in repository files, list nesting, heading levels and table pipes. Whether to use a list, headings or a table is in the `writing-hygiene-*` skills.
+  Load when writing or reviewing any Markdown (a README, docs, a skill, a plan, a GitHub issue, comment or PR description, a commit message) or when a list, heading or table renders wrongly. Syntax only: one sentence per line in repository files, list nesting, heading levels, table pipes and collapsed sections. Whether to use a list, headings or a table is in the `writing-hygiene-*` skills.
 tags: [markdown, writing]
 ---
 
@@ -220,6 +220,48 @@ value.
   column of identical cells. Which properties earn columns at all is in
   `writing-hygiene-tables-for-comparison`.
 
+## Collapsed sections
+
+A collapsed section is HTML that Markdown passes through: `<details>` around the block, and inside it a `<summary>` holding the one line shown while the block is closed.
+Markdown doesn't read inside an HTML block, and a blank line is what ends one, so the blank lines decide what renders.
+Whether a block should be collapsed at all is in `writing-hygiene-progressive-disclosure`.
+
+```markdown
+<details>
+<summary>Already current (4)</summary>
+
+- auth
+- docs
+- mail
+- web
+
+</details>
+
+The next paragraph.
+```
+
+- **A blank line after `</summary>`.**
+  Without it the content is still part of the HTML block, and a list, a table or a code fence inside shows as its raw text.
+- **A blank line after `</details>`.**
+  Without it the next line joins the HTML block, and its Markdown isn't rendered.
+- **The tags at the indent of the text around them:** column 0, or the item's text column inside a list item.
+- **HTML in the summary, not Markdown.**
+  The summary line is inside the HTML block, so `**bold**` and backticks show as typed: write `<b>` and `<code>`.
+- **`<details open>`** draws the section open, for the reader to close.
+
+### Where a collapsed section folds
+
+It folds where the Markdown becomes HTML in a browser and the renderer lets these 2 tags through.
+Anywhere else the content shows in full, usually with the tags as text around it.
+
+| Where the Markdown is read                                                            | A `<details>` block                                                    |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| GitHub: an issue, a pull request, a comment, a release, a wiki, a rendered `.md` file | folds                                                                  |
+| A terminal, raw or through a renderer                                                 | doesn't fold, as `markdown-hygiene-terminal-rendering` says            |
+| A commit message                                                                      | doesn't fold: `git log` and GitHub's commit page show it as plain text |
+
+Leave the tags out where they don't fold.
+
 ## Common mistakes
 
 | Mistake                                        | Fix                                       |
@@ -240,6 +282,8 @@ value.
 | `✅ — only on Pro`                             | `✅<br/>Only on Pro`                      |
 | ✅ in a categorical or numeric column          | Plain text                                |
 | Plain or bold item names in the first column   | Link each name to its canonical page      |
+| Markdown inside `<details>` shows as raw text  | Add a blank line after `</summary>`       |
+| `<details>` in text read in a terminal         | Leave it out and put the detail last      |
 
 ## When to apply
 
@@ -250,6 +294,7 @@ value.
   nesting, a merged paragraph, a missing anchor, a split or shifted row.
 - Right after a writing skill has chosen to turn prose into a list, an
   outline or a table, to write it out.
+- Writing a `<details>` block, or fixing one whose content shows as raw text.
 
 ## Related skills
 
@@ -261,6 +306,7 @@ came from; don't apply it from memory.
 - `writing-hygiene-prose-to-lists`: when prose is really a list, when to leave it alone, and how to convert it faithfully.
 - `writing-hygiene-headings-as-outline`: when a document needs headings and how to make them read as its outline.
 - `writing-hygiene-tables-for-comparison`: when content is an item-by-property grid, and which properties earn columns.
+- `writing-hygiene-progressive-disclosure`: which parts of a document are collapsed, and what a collapsed section's label says.
 - `markdown-hygiene-escape-reserved-characters`: escaping characters, such as a pipe in a cell, that Markdown would read as formatting.
 - `markdown-hygiene-terminal-rendering`: tables, separators and links in Markdown that is read in a terminal.
 - `git-hygiene-commit-message-format`: the commit message body, wrapped at 72 columns rather than one sentence per line.
