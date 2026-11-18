@@ -237,12 +237,27 @@ spaces in the files where you rely on them.
 Put each command on one line of its own, with its marker and the command
 on that same line, the command in inline code:
 
-- **`💻 ❯`** for a command to run in the reader's own terminal.
-- **`✴️ ❯`** for one to paste at a coding agent's prompt, with the agent's
-  shell prefix included, such as `!` in Claude Code, so its output lands in
-  the conversation.
+- **`✴️ ❯`** for anything the reader types at the coding agent's prompt.
+  - **A shell command** the agent's session can run starts with the
+    agent's shell prefix and a space, inside the inline code: in Claude
+    Code, `✴️ ❯` then `` `! git status` ``. The reader copies from the `!`
+    to the end of the line and pastes it at the prompt; the command runs
+    in the session and its output lands in the conversation.
+  - **A slash command** or other prompt input has no prefix: `✴️ ❯` then
+    `` `/review` ``.
+- **`💻 ❯`** for a command to run in the reader's own terminal, outside
+  the agent: `💻 ❯` then `` `sudo darwin-rebuild switch` ``.
 
-A command that asks for a password always uses `💻 ❯`.
+Choose `✴️ ❯` with `!` when the command runs to completion on its own and
+its output helps the conversation. Choose `💻 ❯` when the command:
+
+- is interactive or needs a TTY, such as an editor, a pager or a prompt;
+- asks for a password, such as `sudo`;
+- runs for a long time, such as a system switch or a watch loop;
+- needs a shell environment the agent's session doesn't have.
+
+Either way the command fits on one line, since the reader copies a single
+line: join steps with `&&` rather than splitting them.
 
 Both markers are safe on a line of their own; check their widths before
 putting one in a table.
