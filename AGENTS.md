@@ -27,12 +27,17 @@ is a directory under `skills/` with a `SKILL.md` and its own `flake.nix`.
     `tests/conftest.py` puts `skills/<skill>/scripts/` on `sys.path` for the
     tests in `tests/<skill>/`, so they import a script by its module name.
     `pytest.ini` holds pytest's options.
-  - A new language gets a line in `doc-skills`, whose source is
-    `tools/doc-skills.sh`, and a check of its own in `flake.nix`, both
-    running its tool on its tests under `tests/`.
-- `doc-skills test` runs each language's tool on `tests/`: today
-  `pytest tests`. `doc-skills test SKILL...` runs them on `tests/SKILL...`,
-  only those skills' tests, not the repository tests. For pytest's own
-  options, run `python3 -m pytest` in the dev shell.
+  - Babashka tests are `clojure.test` files named `*_test.clj`, run by
+    `bb test`, the `test` task in `bb.edn`, with Babashka's own
+    `clojure.test`. `bb.edn` puts each Babashka skill's `scripts/` and its
+    `tests/<skill>/` on the task's classpath, and the task requires each
+    test namespace, so a test requires its script by namespace.
+  - A new language gets a check of its own in `flake.nix` and a command in
+    the dev shell, both running its tool on its tests under `tests/`.
+- `doc-skills test` runs pytest on `tests/`, and `doc-skills test SKILL...`
+  on `tests/SKILL...`, only those skills' tests, not the repository tests.
+  For pytest's own options, run `python3 -m pytest` in the dev shell.
+- `bb test` runs the Babashka tests.
 - `nix flake check` runs one check per language with the same command:
-  `checks.<system>.pytest` runs `pytest tests`.
+  `checks.<system>.pytest` runs `pytest tests` and `checks.<system>.bb-test`
+  runs `bb test`.

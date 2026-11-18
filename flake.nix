@@ -124,14 +124,29 @@
             ];
             text = builtins.readFile ./tools/doc-skills.sh;
           };
+
+          # The sentence-per-line check from markdown-hygiene-lists-headings-tables,
+          # run by Babashka with cmark-gfm, its Markdown parser, on its PATH. Other
+          # repositories add it to their treefmt or checks, as that skill's SKILL.md
+          # shows. tools/build_sentence_per_line.sh builds it from these
+          # attributes.
+          sentencePerLine = pkgs.runCommand "markdown-sentence-per-line" {
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            sentencePerLineScript = ./skills/markdown-hygiene-lists-headings-tables/scripts/sentence_per_line.clj;
+            babashka = lib.getExe pkgs.babashka-unwrapped;
+            parserPath = lib.makeBinPath [ pkgs.cmark-gfm ];
+            meta.mainProgram = "markdown-sentence-per-line";
+          } (builtins.readFile ./tools/build_sentence_per_line.sh);
         in
         {
-          packages = base.packages.${system};
+          packages = base.packages.${system} // {
+            markdown-sentence-per-line = sentencePerLine;
+          };
 
           apps = base.apps.${system};
 
           # One check per language, each running that language's tool on its
-          # tests under tests/, as `doc-skills test` does.
+          # tests under tests/, as the dev shell's command for it does.
           #
           # pytest: its source is pytest.ini, tests/, each skill's SKILL.md
           # and scripts/, and every file under skills/ that
@@ -177,18 +192,55 @@
               nativeBuildInputs = [ testPython ];
             } (builtins.readFile ./tools/pytest-check.sh);
 
-          # The test Python, for pytest's own options (`python3 -m pytest -k
-          # NAME tests`) beyond what `doc-skills test` takes.
-          devshells.default.packages = [ testPython ];
+          # bb-test: `bb test`, the `test` task in bb.edn, on bb.edn and the
+          # Clojure files under skills/ and tests/. The sentence-per-line
+          # tests parse with cmark-gfm, and their end-to-end cases run the
+          # packaged program.
+          checks.bb-test = pkgs.runCommand "bb-test" {
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                ./bb.edn
+                (lib.fileset.fileFilter (file: file.hasExt "clj") ./skills)
+                (lib.fileset.fileFilter (file: file.hasExt "clj") ./tests)
+              ];
+            };
+            nativeBuildInputs = [
+              pkgs.babashka-unwrapped
+              pkgs.cmark-gfm
+            ];
+            SENTENCE_PER_LINE = lib.getExe sentencePerLine;
+          } (builtins.readFile ./tools/bb-test-check.sh);
 
-          # The repository's own command, beside the module's check / fmt /
+          # The test Python, for pytest's own options (`python3 -m pytest -k
+          # NAME tests`) beyond what `doc-skills test` takes, and cmark-gfm,
+          # which the sentence-per-line script parses with when `bb test` or
+          # `bb` runs it from the working tree.
+          devshells.default.packages = [
+            testPython
+            pkgs.cmark-gfm
+          ];
+
+          # The repository's own commands, beside the module's check / fmt /
           # update-flake and skills commands in the dev shell's menu.
           devshells.default.commands = [
             {
               category = "dev";
               name = "doc-skills";
               package = docSkills;
-              help = "Run the tests: doc-skills test [SKILL...]";
+              help = "Run the Python tests: doc-skills test [SKILL...]";
+            }
+            {
+              category = "dev";
+              name = "bb";
+              package = pkgs.babashka-unwrapped;
+              help = "Run the Babashka tests: bb test";
+            }
+            {
+              category = "dev";
+              name = "markdown-sentence-per-line";
+              package = sentencePerLine;
+              help = "Flag Markdown lines that end mid-sentence (markdown-sentence-per-line --help)";
             }
           ];
 

@@ -1,13 +1,13 @@
 ---
 name: markdown-hygiene-lists-headings-tables
 description: >-
-  Write the Markdown syntax for lists, headings and tables so the structure you chose renders as you meant it. Lists: one marker per list, nesting by the parent's text column, ordered lists for sequences, a lead-in colon, blank lines around the list, hard line breaks inside an item. Headings: ATX `#` syntax, one H1, no skipped levels, no closing period, a real heading rather than a bold line so it gets an anchor and a table-of-contents entry. Tables: header and delimiter rows, pipes and alignment colons, `\|` in cells, a blank line above and below, an explicit `—` or `N/A` for an empty cell, `<br/>` for a second line in a cell, ✅/❌ for genuinely binary cells, and a first column that links each item's name. Use whenever writing or reviewing Markdown that holds a list, a heading or a table. Whether the content should be a list, a heading tree or a table is a writing question, covered by the writing-hygiene skills named in Related skills.
+  Load when writing or reviewing any Markdown (a README, docs, a skill, a plan, a GitHub issue, comment or PR description, a commit message) or when a list, heading or table renders wrongly. Syntax only: one sentence per line in repository files, list nesting, heading levels and table pipes. Whether to use a list, headings or a table is in the `writing-hygiene-*` skills.
 tags: [markdown, writing]
 ---
 
-# Markdown syntax for lists, headings and tables
+# Markdown syntax for line breaks, lists, headings and tables
 
-_Once the content is a list, an outline or a table, write its syntax so the renderer builds that structure and not a different one._
+_Write each sentence on a line of its own, and once the content is a list, an outline or a table, write its syntax so the renderer builds that structure and not a different one._
 
 Once you have decided that content is a list, an outline of headings or a
 table, the remaining work is syntax: a renderer that reads the wrong indent,
@@ -16,6 +16,75 @@ structure from the one you wrote. This skill is that syntax. Whether to use
 a list, a heading or a table, and how to convert prose faithfully, is in
 `writing-hygiene-prose-to-lists`, `writing-hygiene-headings-as-outline` and
 `writing-hygiene-tables-for-comparison`.
+
+## Line breaks in prose
+
+### One sentence per line in Markdown files
+
+Start each sentence on a line of its own, and never break a line inside one.
+A newline inside a paragraph renders as a space, so the page reads the same.
+A diff, `git blame` or review comment then lands on the one sentence it's about, and editing a sentence never reflows the ones after it.
+
+- **Too long for one line:** split it into 2 sentences.
+- **List items:** each sentence after the first goes on a continuation line at the item's text column.
+- **Prettier:** keep `proseWrap` at its default, `"preserve"`. `"always"` refills paragraphs.
+
+### Text posted to GitHub
+
+GitHub renders every newline as a line break in the text posted to it: comments, issues, pull request descriptions and review comments.
+There, join each paragraph into one line and part paragraphs with a blank line, so a sentence-per-line paragraph doesn't show as a column of short lines.
+Lists, tables and code blocks keep their own lines.
+Files in a repository render by the ordinary Markdown rules above, so the rule for files stands.
+
+### Commit messages
+
+A commit message is read raw, by `git log` in a terminal, so its body stays wrapped at 72 columns, as `git-hygiene-commit-message-format` says.
+A tool that copies a commit body into a pull request description joins each paragraph's lines first, as `github-hygiene-pull-request-mirrors-commit` does, since GitHub would otherwise show every wrap.
+
+### Checking a file
+
+`scripts/sentence_per_line.clj` flags each paragraph line, in a list item or block quote too, that is followed by another line of the same paragraph and ends without `.`, `!`, `?` or `…`, before any closing emphasis, code, bracket or quote marks.
+It parses the Markdown, so code blocks, tables, headings, HTML blocks, front matter, the last line of a paragraph, a line followed by a list item and a hard break are never flagged.
+A colon or semicolon doesn't end a sentence, and an abbreviation such as "e.g." at a line's end passes as one.
+It prints `FILE:LINE:` for each flagged line and exits 1 when there is one, 0 when there is none and 2 on an error; it changes no file.
+
+The flake packages it with its parser, `cmark-gfm`:
+
+```bash
+nix run github:nhooey/document-skills#markdown-sentence-per-line -- README.md docs/*.md
+```
+
+To run it in a repository's `nix fmt` and `nix flake check`, add the `document-skills` flake as an input and the program as a treefmt-nix formatter.
+A formatter that exits non-zero fails `nix fmt` and the treefmt check alike, with the flagged lines in the output:
+
+```nix
+treefmt.settings.formatter.markdown-sentence-per-line = {
+  command = lib.getExe inputs.document-skills.packages.${system}.markdown-sentence-per-line;
+  includes = [ "*.md" ];
+  # excludes = [ "docs/not-yet-converted.md" ];
+};
+```
+
+Without treefmt, run it from a check:
+
+```nix
+checks.markdown-sentence-per-line = pkgs.runCommand "markdown-sentence-per-line" { } ''
+  cd ${./.}
+  find . -name '*.md' -exec ${lib.getExe inputs.document-skills.packages.${system}.markdown-sentence-per-line} {} +
+  touch $out
+'';
+```
+
+### Converting a hard-wrapped file
+
+1. **Pick a file no open change touches.** Converting rewrites most of its prose lines, so it conflicts with any open pull request that edits the file.
+2. **Leave the rest alone:** code blocks, tables, headings, front matter, HTML and hard line breaks.
+3. **Join each paragraph's lines into one**, in list items and block quotes too, keeping the item's indent and the quote's `>`.
+4. **Break after each sentence**, starting the next sentence on a new line at the same indent.
+   Read each break: an abbreviation such as "e.g." or "i.e.", a decimal number or a version number doesn't end a sentence.
+5. **Confirm that only line breaks changed:** `git diff --word-diff` shows no changed words.
+6. **Run the check** on the file.
+7. **Commit the conversion alone**, apart from any change of wording, so a reviewer can skim it and the commit can go in `.git-blame-ignore-revs`.
 
 ## Lists
 
@@ -155,6 +224,8 @@ value.
 
 | Mistake                                        | Fix                                       |
 | ---------------------------------------------- | ----------------------------------------- |
+| A file's paragraph wrapped mid-sentence        | One sentence per line                     |
+| Sentence-per-line paragraph posted to GitHub   | Join the paragraph into one line          |
 | Child bullet indented 1 space, renders flat    | Indent to the parent's text column        |
 | Child indented 4+ spaces past it, renders code | Indent to the parent's text column        |
 | List glued to the paragraph above              | Add a blank line before the first item    |
@@ -172,6 +243,8 @@ value.
 
 ## When to apply
 
+- Writing or reviewing any Markdown, to break its prose lines between sentences, or to join them in text posted to GitHub.
+- Converting a hard-wrapped Markdown file, or adding the sentence-per-line check to a repository.
 - Writing or reviewing any Markdown list, heading or table.
 - A list, heading or table renders differently from its source: flattened
   nesting, a merged paragraph, a missing anchor, a split or shifted row.
@@ -190,3 +263,5 @@ came from; don't apply it from memory.
 - `writing-hygiene-tables-for-comparison`: when content is an item-by-property grid, and which properties earn columns.
 - `markdown-hygiene-escape-reserved-characters`: escaping characters, such as a pipe in a cell, that Markdown would read as formatting.
 - `markdown-hygiene-terminal-rendering`: tables, separators and links in Markdown that is read in a terminal.
+- `git-hygiene-commit-message-format`: the commit message body, wrapped at 72 columns rather than one sentence per line.
+- `github-hygiene-pull-request-mirrors-commit`: copying a commit body into a pull request description, with its paragraphs joined for GitHub.

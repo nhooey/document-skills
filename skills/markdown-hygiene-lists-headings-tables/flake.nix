@@ -1,5 +1,5 @@
 {
-  description = "markdown-hygiene-lists-headings-tables: Agent skill — Markdown syntax for lists, headings and tables: nesting indents, hard line breaks, ATX levels, pipes and alignment, <br/> in cells, ✅/❌ cells, linked first column";
+  description = "markdown-hygiene-lists-headings-tables: Agent skill — Markdown syntax for line breaks, lists, headings and tables: one sentence per line and its check, nesting indents, hard line breaks, ATX levels, pipes and alignment, <br/> in cells, ✅/❌ cells, linked first column";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

@@ -216,6 +216,9 @@ line, counting each emoji in the header as 2, so it ends exactly under the
 header's last character. Check that your editor or formatter keeps trailing
 spaces in the files where you rely on them.
 
+A Markdown file read raw, with `cat` or `less`, has each sentence on a line of its own, as `markdown-hygiene-lists-headings-tables` lays out, and the terminal wraps a long one at the window's edge.
+A commit message is the exception: `git log` indents it and git's other tools show it as written, so its body stays wrapped at 72 columns.
+
 ## Links
 
 - **Every URL is a Markdown link** with a label that says what it opens:
