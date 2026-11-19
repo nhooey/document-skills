@@ -18,7 +18,7 @@ Each skill is a self-contained directory under [`skills/`](skills/) with a
 | Skill                                                                                                        | What it does                                                                                                                      |
 | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | [`markdown-hygiene-escape-reserved-characters`](skills/markdown-hygiene-escape-reserved-characters/SKILL.md) | Escape the characters Markdown would read as formatting, by backslash or code span, and only those.                               |
-| [`markdown-hygiene-lists-headings-tables`](skills/markdown-hygiene-lists-headings-tables/SKILL.md)           | List nesting and hard line breaks, ATX heading levels, table pipes and alignment, `<br/>` and ✅/❌ cells, a linked first column. |
+| [`markdown-hygiene-lists-headings-tables`](skills/markdown-hygiene-lists-headings-tables/SKILL.md)           | One sentence per line and its check, list nesting, ATX heading levels, table pipes, `<br/>` and ✅/❌ cells, `<details>` folding. |
 | [`markdown-hygiene-terminal-rendering`](skills/markdown-hygiene-terminal-rendering/SKILL.md)                 | Markdown read in a terminal: tables fitted to its width, glyph width checks, U+2800 separator lines, links, commands to run.      |
 
 ## Install
@@ -37,6 +37,7 @@ Package outputs:
 - `agent-skill-nhooey-markdown-hygiene-escape-reserved-characters`
 - `agent-skill-nhooey-markdown-hygiene-lists-headings-tables`
 - `agent-skill-nhooey-markdown-hygiene-terminal-rendering`
+- `markdown-sentence-per-line` — the sentence-per-line check from `markdown-hygiene-lists-headings-tables`, for a repository's treefmt or checks
 
 ## Development
 
@@ -44,5 +45,6 @@ Package outputs:
 nix develop      # enter the dev shell; run `menu` to list commands
 fmt              # nixfmt over *.nix, prettier over *.md / *.yaml / *.yml
 doc-skills test  # pytest tests: every test; name skills to run only theirs
+bb test          # the Babashka tests, tests/*/*_test.clj
 check            # nix flake check: the treefmt check and all the tests
 ```

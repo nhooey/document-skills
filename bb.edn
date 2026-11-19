@@ -1,0 +1,13 @@
+;; Babashka's tasks for this repository. `bb test` runs the Babashka tests
+;; under tests/ with Babashka's own clojure.test: each skill's scripts/ and its
+;; tests/<skill>/ are on the task's classpath, and every namespace required
+;; here whose name ends in -test runs.
+{:tasks
+ {test {:doc "Run the Babashka tests under tests/"
+        :extra-paths ["skills/markdown-hygiene-lists-headings-tables/scripts"
+                      "tests/markdown-hygiene-lists-headings-tables"]
+        :requires ([clojure.test :as t]
+                   [sentence-per-line-test])
+        :task (let [{:keys [fail error]} (t/run-all-tests (re-pattern ".+-test"))]
+                (when (pos? (+ fail error))
+                  (throw (ex-info "Babashka tests failed" {:babashka/exit 1}))))}}}

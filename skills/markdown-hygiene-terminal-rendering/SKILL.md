@@ -216,6 +216,9 @@ line, counting each emoji in the header as 2, so it ends exactly under the
 header's last character. Check that your editor or formatter keeps trailing
 spaces in the files where you rely on them.
 
+A Markdown file read raw, with `cat` or `less`, has each sentence on a line of its own, as `markdown-hygiene-lists-headings-tables` lays out, and the terminal wraps a long one at the window's edge.
+A commit message is the exception: `git log` indents it and git's other tools show it as written, so its body stays wrapped at 72 columns.
+
 ## Links
 
 - **Every URL is a Markdown link** with a label that says what it opens:
@@ -262,6 +265,12 @@ line: join steps with `&&` rather than splitting them.
 Both markers are safe on a line of their own; check their widths before
 putting one in a table.
 
+## Nothing folds
+
+A terminal has no collapsed sections.
+A `<details>` block read there shows all of its content, usually with its tags as text around it, so leave the tags out of anything read in a terminal, a commit message included.
+Order does the fold's work, as `writing-hygiene-progressive-disclosure` says: the summary and what needs action first, and the detail last, or left out with the file or command that shows it.
+
 ## When to apply
 
 - Writing Markdown that a person reads in a terminal: a coding agent's
@@ -277,7 +286,7 @@ putting one in a table.
 
 ## Your preferences
 
-!`cat "${CLAUDE_SKILL_DIR}/../markdown-hygiene-terminal-rendering.preferences.md" "${CLAUDE_PROJECT_DIR}/.agents/skills/markdown-hygiene-terminal-rendering.preferences.md" 2>/dev/null || true`
+!`cat "$(dirname "${CLAUDE_SKILL_DIR}")/markdown-hygiene-terminal-rendering.preferences.md" "${CLAUDE_PROJECT_DIR}/.agents/skills/markdown-hygiene-terminal-rendering.preferences.md" 2>/dev/null || true`
 
 If your agent doesn't run the line above, read these files yourself if they
 exist: `markdown-hygiene-terminal-rendering.preferences.md` next to this skill's folder, then
@@ -296,5 +305,6 @@ came from; don't apply it from memory.
 
 - `markdown-hygiene-lists-headings-tables`: the Markdown syntax for lists, headings and tables these rules build on.
 - `markdown-hygiene-escape-reserved-characters`: escaping characters that Markdown would read as formatting.
+- `writing-hygiene-progressive-disclosure`: the order that stands in for a fold, summary first and detail last or on request.
 - `coding-agent-kanban-turn-responses`: an agent's turn responses, which apply these rules to their lists, tables and links.
 - `coding-agent-skill-references`: where this skill's preferences files live and who writes them.
